@@ -3,13 +3,21 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useKitchenOSStore } from '@/store';
 import { Badge } from '@/components/ui/Badge';
 
 export function TopBar() {
   const { isOfflineMode, manualOverrideMode } = useKitchenOSStore();
-  const currentTime = new Date().toLocaleTimeString();
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <header className="bg-gray-900 border-b border-gray-800 px-6 py-4">
