@@ -341,10 +341,14 @@ npm run test:ui
 **Steps**:
 1. Click the button above or go to [vercel.com](https://vercel.com)
 2. Import the repository
-3. Add environment variables:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. Add environment variables in Vercel dashboard (Settings → Environment Variables):
+   - `NEXT_PUBLIC_SUPABASE_URL` = `https://your-project-id.supabase.co`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = `your-anon-key-here`
+   - **Important**: Use "Plain Text" type, NOT "Secret" type
+   - Apply to: Production, Preview, and Development
 4. Deploy automatically
+
+**📖 Detailed deployment guide**: See [DEPLOYMENT.md](DEPLOYMENT.md) for troubleshooting and complete instructions.
 
 ### Manual Deployment
 
