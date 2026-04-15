@@ -78,8 +78,10 @@ export function useOrders() {
         id: `order-${Date.now()}`,
       };
       
+      console.log('[useOrders] Creating order:', newOrder);
+      
       // Add to Supabase
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('orders')
         .insert({
           id: newOrder.id,
@@ -91,16 +93,24 @@ export function useOrders() {
           started_at: newOrder.startedAt,
           dispatched_at: newOrder.dispatchedAt,
           countdown_timer: newOrder.countdownTimer,
-        });
+        })
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[useOrders] Supabase error:', error);
+        throw new Error(`Database error: ${error.message}`);
+      }
+
+      console.log('[useOrders] Order created in database:', data);
 
       // Update local state
       setOrders(prev => [...prev, newOrder]);
       console.log('[useOrders] Successfully added order:', newOrder.id);
     } catch (err) {
       console.error('[useOrders] Failed to add order:', err);
-      throw err;
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(`Failed to create order: ${errorMessage}`);
+      throw new Error(`Failed to create order: ${errorMessage}`);
     }
   }, []);
 

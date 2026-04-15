@@ -32,6 +32,7 @@ export function CreateOrderModal({ onClose, onSubmit }: CreateOrderModalProps) {
   const [tableNumber, setTableNumber] = useState<number>(1);
   const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const addItem = (menuItem: typeof MENU_ITEMS[0]) => {
     const existing = selectedItems.find(item => item.name === menuItem.name);
@@ -62,17 +63,24 @@ export function CreateOrderModal({ onClose, onSubmit }: CreateOrderModalProps) {
 
   const handleSubmit = async () => {
     if (selectedItems.length === 0) {
-      alert('Please add at least one item');
+      setError('Please add at least one item');
+      return;
+    }
+
+    if (tableNumber < 1) {
+      setError('Please enter a valid table number');
       return;
     }
 
     setSubmitting(true);
+    setError(null);
     try {
       await onSubmit(tableNumber, selectedItems);
       onClose();
     } catch (error) {
       console.error('Failed to create order:', error);
-      alert('Failed to create order. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create order. Please try again.';
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -167,6 +175,15 @@ export function CreateOrderModal({ onClose, onSubmit }: CreateOrderModalProps) {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-900/20 border border-red-700 rounded-lg p-3">
+              <p className="text-sm text-red-300">
+                ❌ {error}
+              </p>
             </div>
           )}
 
