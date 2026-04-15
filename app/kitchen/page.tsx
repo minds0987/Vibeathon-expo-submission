@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { KanbanBoard } from '@/components/kds/KanbanBoard';
 import { CreateOrderModal } from '@/components/kds/CreateOrderModal';
 import { OrderScanner } from '@/components/kds/OrderScanner';
+import { CameraScanner } from '@/components/kds/CameraScanner';
 import { useOrders } from '@/hooks/useOrders';
 import { OrderStatus } from '@/types';
 import { SkeletonLoader } from '@/components/ui/SkeletonLoader';
@@ -23,6 +24,7 @@ export default function KitchenDisplay() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [showCameraScanner, setShowCameraScanner] = useState(false);
 
   const handleOrderMove = async (orderId: string, newStatus: OrderStatus) => {
     try {
@@ -111,7 +113,13 @@ export default function KitchenDisplay() {
             variant="secondary"
             onClick={() => setShowScanner(true)}
           >
-            📱 Scanner
+            ⌨️ Manual Scanner
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => setShowCameraScanner(true)}
+          >
+            📷 Camera Scanner
           </Button>
           <Button
             variant={manualOverrideMode ? 'danger' : 'secondary'}
@@ -136,6 +144,13 @@ export default function KitchenDisplay() {
       {showScanner && (
         <OrderScanner
           onClose={() => setShowScanner(false)}
+          onScan={handleScan}
+        />
+      )}
+
+      {showCameraScanner && (
+        <CameraScanner
+          onClose={() => setShowCameraScanner(false)}
           onScan={handleScan}
         />
       )}

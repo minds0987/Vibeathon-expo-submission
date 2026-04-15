@@ -4,7 +4,7 @@
 import React, { memo, useState } from 'react';
 import { Order } from '@/types';
 import { Card } from '@/components/ui/Card';
-import { downloadReceipt, printReceipt } from '@/lib/receipt';
+import { exportReceiptToPDF } from '@/lib/pdfExport';
 import { ReceiptModal } from './ReceiptModal';
 
 export interface OrderCardProps {
@@ -26,12 +26,13 @@ export const OrderCard = memo(function OrderCard({ order, isEditable = false }: 
 
   const handleDownloadReceipt = (e: React.MouseEvent) => {
     e.stopPropagation();
-    downloadReceipt(order);
+    exportReceiptToPDF(order);
   };
 
   const handlePrintReceipt = (e: React.MouseEvent) => {
     e.stopPropagation();
-    printReceipt(order);
+    // Open receipt modal for printing
+    setShowReceipt(true);
   };
 
   const handleViewReceipt = (e: React.MouseEvent) => {
@@ -85,9 +86,9 @@ export const OrderCard = memo(function OrderCard({ order, isEditable = false }: 
             <button
               onClick={handleDownloadReceipt}
               className="flex-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
-              title="Download Receipt"
+              title="Download Receipt PDF"
             >
-              📄 Download
+              📄 PDF
             </button>
             <button
               onClick={handlePrintReceipt}

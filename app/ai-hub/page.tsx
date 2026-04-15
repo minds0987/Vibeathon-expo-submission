@@ -6,20 +6,20 @@ import InventoryList from '@/components/ai-hub/InventoryList';
 import StockAlerts from '@/components/ai-hub/StockAlerts';
 import { Button } from '@/components/ui/Button';
 import { useInventory } from '@/hooks/useInventory';
-import { downloadBuyList, printBuyList } from '@/lib/buyList';
+import { exportBuyListToPDF } from '@/lib/pdfExport';
 
 export default function AIHub() {
   const { inventory } = useInventory();
 
   const handleDownloadBuyList = () => {
     if (inventory) {
-      downloadBuyList(inventory);
+      exportBuyListToPDF(inventory);
     }
   };
 
   const handlePrintBuyList = () => {
     if (inventory) {
-      printBuyList(inventory);
+      exportBuyListToPDF(inventory);
     }
   };
 
@@ -46,16 +46,10 @@ export default function AIHub() {
           </h2>
           <div className="flex gap-2">
             <Button
-              variant="secondary"
-              onClick={handlePrintBuyList}
-            >
-              🖨️ Print Buy List
-            </Button>
-            <Button
               variant="primary"
               onClick={handleDownloadBuyList}
             >
-              📋 Export Buy List
+              📋 Export Buy List (PDF)
             </Button>
           </div>
         </div>
