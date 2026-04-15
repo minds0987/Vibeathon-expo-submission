@@ -7,7 +7,7 @@ import { ErrorBadge } from '@/components/ui/ErrorBadge';
 import { useInventory } from '@/hooks/useInventory';
 
 export default function InventoryList() {
-  const { inventory, loading, error } = useInventory();
+  const { inventory, loading, error, updateStockLevel } = useInventory();
 
   if (loading) {
     return (
@@ -34,7 +34,7 @@ export default function InventoryList() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {inventory.map((item) => (
-        <InventoryItem key={item.id} item={item} />
+        <InventoryItem key={item.id} item={item} onUpdateStock={updateStockLevel} />
       ))}
     </div>
   );
