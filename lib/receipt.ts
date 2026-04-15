@@ -1,6 +1,22 @@
 // Receipt generation utilities
 import { Order } from '@/types';
 
+// Generate a simple ASCII barcode representation
+function generateASCIIBarcode(orderId: string): string {
+  // Simple barcode representation using | and spaces
+  const barcodeChars = orderId.split('').map(char => {
+    const code = char.charCodeAt(0);
+    return code % 2 === 0 ? '||' : '| |';
+  }).join(' ');
+  
+  return `
+    ╔════════════════════════════════════════╗
+    ║  ${barcodeChars}  ║
+    ║           ${orderId}           ║
+    ╚════════════════════════════════════════╝
+  `;
+}
+
 export function generateReceipt(order: Order): string {
   const createdDate = new Date(order.createdAt);
   const totalPrepTime = order.items.reduce((sum, item) => sum + item.prepTime, 0);
@@ -10,6 +26,8 @@ export function generateReceipt(order: Order): string {
 ║         KITCHENOS RESTAURANT           ║
 ║           ORDER RECEIPT                ║
 ╚════════════════════════════════════════╝
+
+${generateASCIIBarcode(order.id)}
 
 Order ID: ${order.id}
 Table Number: ${order.tableNumber}
@@ -52,6 +70,14 @@ Est. Prep Time: ${totalPrepTime} minutes
 
   receipt += `
 ────────────────────────────────────────
+SCAN INSTRUCTIONS:
+────────────────────────────────────────
+Use the Kitchen Display Scanner to scan
+the barcode above and update order status.
+
+Order ID: ${order.id}
+
+────────────────────────────────────────
        Thank you for your order!
         Powered by KitchenOS
 ────────────────────────────────────────
@@ -88,15 +114,46 @@ export function printReceipt(order: Order) {
               padding: 20px;
               font-size: 12px;
             }
+            .barcode-container {
+              text-align: center;
+              margin: 20px 0;
+            }
+            .barcode-svg {
+              margin: 10px auto;
+            }
             @media print {
               body { padding: 0; }
             }
           </style>
         </head>
-        <body>${receipt}</body>
+        <body>
+          ${receipt}
+          <div class="barcode-container">
+            <svg class="barcode-svg" id="barcode-${order.id}"></svg>
+          </div>
+          <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+          <script>
+            try {
+              JsBarcode("#barcode-${order.id}", "${order.id}", {
+                format: "CODE128",
+                width: 2,
+                height: 50,
+                displayValue: true,
+                fontSize: 14,
+                margin: 10
+              });
+            } catch(e) {
+              console.error('Barcode generation failed:', e);
+            }
+          </script>
+        </body>
       </html>
     `);
     printWindow.document.close();
-    printWindow.print();
+    
+    // Wait for barcode to render before printing
+    setTimeout(() => {
+      printWindow.print();
+    }, 500);
   }
 }
