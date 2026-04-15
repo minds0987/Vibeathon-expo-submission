@@ -9,8 +9,8 @@ export default function AIHub() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">AI Hub</h1>
-        <p className="text-gray-600 mt-1">
+        <h1 className="text-2xl font-bold text-gray-100">AI Hub</h1>
+        <p className="text-gray-300 mt-1">
           Demand forecasting and inventory management
         </p>
       </div>
@@ -23,7 +23,7 @@ export default function AIHub() {
 
       {/* Inventory List */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <h2 className="text-xl font-semibold text-gray-100 mb-4">
           Inventory Status
         </h2>
         <InventoryList />

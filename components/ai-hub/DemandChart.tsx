@@ -53,21 +53,29 @@ export default function DemandChart() {
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg border border-gray-200">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+    <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+      <h3 className="text-lg font-semibold text-gray-100 mb-4">
         Demand Forecast vs Actual
       </h3>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={demandData}>
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
           <XAxis 
             dataKey="hour" 
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: 12, fill: '#9ca3af' }}
             interval={2}
+            stroke="#6b7280"
           />
-          <YAxis tick={{ fontSize: 12 }} />
-          <Tooltip />
-          <Legend />
+          <YAxis tick={{ fontSize: 12, fill: '#9ca3af' }} stroke="#6b7280" />
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: '#1f2937', 
+              border: '1px solid #374151',
+              borderRadius: '0.5rem',
+              color: '#f3f4f6'
+            }}
+          />
+          <Legend wrapperStyle={{ color: '#f3f4f6' }} />
           <Line
             type="monotone"
             dataKey="projected"
@@ -104,7 +112,7 @@ export default function DemandChart() {
       <div className="mt-4 flex items-center gap-4 text-sm">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-red-500" />
-          <span className="text-gray-600">High demand ({">"} 120% projected)</span>
+          <span className="text-gray-300">High demand ({">"} 120% projected)</span>
         </div>
       </div>
     </div>

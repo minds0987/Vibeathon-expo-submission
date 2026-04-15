@@ -25,7 +25,7 @@ export default function InventoryList() {
 
   if (!inventory || inventory.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-gray-400">
         No inventory items found
       </div>
     );

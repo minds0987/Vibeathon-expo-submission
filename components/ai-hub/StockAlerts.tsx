@@ -24,10 +24,10 @@ export default function StockAlerts() {
 
   if (atRiskItems.length === 0) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+      <div className="bg-green-900/20 border border-green-700 rounded-lg p-4">
         <div className="flex items-center gap-2">
           <Badge variant="success">All Good</Badge>
-          <span className="text-sm text-green-700">
+          <span className="text-sm text-green-300">
             All inventory levels are healthy
           </span>
         </div>
@@ -36,18 +36,18 @@ export default function StockAlerts() {
   }
 
   return (
-    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+    <div className="bg-red-900/20 border border-red-700 rounded-lg p-4">
       <div className="flex items-center gap-2 mb-3">
         <Badge variant="danger">Alert</Badge>
-        <h3 className="font-semibold text-red-900">
+        <h3 className="font-semibold text-red-200">
           At Risk Items ({atRiskItems.length})
         </h3>
       </div>
       <ul className="space-y-2">
         {atRiskItems.map((item) => (
           <li key={item.id} className="flex items-center justify-between text-sm">
-            <span className="text-red-700">{item.itemName}</span>
-            <span className="text-red-600 font-medium">
+            <span className="text-red-300">{item.itemName}</span>
+            <span className="text-red-400 font-medium">
               {item.stockLevel.toFixed(1)}% (Reorder at {item.reorderPoint}%)
             </span>
           </li>
