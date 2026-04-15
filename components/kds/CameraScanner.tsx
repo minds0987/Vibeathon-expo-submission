@@ -240,19 +240,18 @@ export function CameraScanner({ onClose, onScan }: CameraScannerProps) {
           {/* Instructions */}
           <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-3">
             <p className="text-sm text-blue-300">
-              <strong>Instructions:</strong> Point your camera at the barcode on the receipt. 
-              The order will be automatically scanned and moved to the selected status.
+              <strong>Camera Scanning:</strong> Point your camera at the barcode. For best results, use a USB barcode scanner which will automatically type the order ID into the input field below.
             </p>
           </div>
 
           {/* Manual Input Fallback */}
           <div className="pt-4 border-t border-gray-700">
-            <p className="text-xs text-gray-400 mb-2">Can't scan? Enter order ID manually:</p>
+            <p className="text-sm text-gray-300 mb-2 font-medium">Enter Order ID:</p>
             <div className="flex gap-2">
               <input
                 type="text"
-                placeholder="Enter order ID"
-                className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded text-gray-100 text-sm"
+                placeholder="Paste or type order ID"
+                className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded text-gray-100"
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     handleManualInput((e.target as HTMLInputElement).value);
@@ -260,7 +259,7 @@ export function CameraScanner({ onClose, onScan }: CameraScannerProps) {
                 }}
               />
               <Button
-                variant="secondary"
+                variant="primary"
                 onClick={(e) => {
                   const input = e.currentTarget.previousElementSibling as HTMLInputElement;
                   handleManualInput(input.value);
@@ -270,6 +269,9 @@ export function CameraScanner({ onClose, onScan }: CameraScannerProps) {
                 Submit
               </Button>
             </div>
+            <p className="text-xs text-gray-500 mt-2">
+              💡 Tip: Use a USB barcode scanner or type the order ID from the receipt
+            </p>
           </div>
 
           {/* Actions */}
