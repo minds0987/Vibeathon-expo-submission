@@ -1,196 +1,486 @@
-# KitchenOS Project Structure
+# KitchenOS - Project Structure
 
-This document provides a comprehensive overview of all source files in the KitchenOS project and their purposes.
+## Directory Overview
 
-**Last Updated**: 2025-01-24  
-**Project Status**: Task 1 Complete (Project Initialization), Task 2 In Progress (Documentation Structure)
+```
+kitchenos-next/
+├── app/                          # Next.js App Router pages
+│   ├── command-center/           # Command Center dashboard
+│   │   └── page.tsx             # Metrics, logs, manual override
+│   ├── kitchen/                  # Kitchen Display System
+│   │   └── page.tsx             # Kanban board for orders
+│   ├── ai-hub/                   # AI Hub for inventory & forecasting
+│   │   └── page.tsx             # Demand chart, inventory, alerts
+│   ├── staff/                    # Staff Dispatch system
+│   │   └── page.tsx             # Task management
+│   ├── layout.tsx                # Root layout with AppShell
+│   ├── page.tsx                  # Home page (redirects to command-center)
+│   └── globals.css               # Global styles
+│
+├── components/                   # React components
+│   ├── ui/                       # Reusable UI primitives
+│   │   ├── Badge.tsx            # Status badges (success/warning/danger/info)
+│   │   ├── Button.tsx           # Button component (primary/secondary/danger)
+│   │   ├── Card.tsx             # Card surface component
+│   │   ├── ErrorBadge.tsx       # Inline error display
+│   │   ├── ProgressBar.tsx      # Color-coded progress bar
+│   │   └── SkeletonLoader.tsx   # Loading state placeholder
+│   │
+│   ├── layout/                   # Layout components
+│   │   ├── AppShell.tsx         # Main layout wrapper
+│   │   ├── Sidebar.tsx          # Navigation sidebar
+│   │   └── TopBar.tsx           # Top bar with status
+│   │
+│   ├── command-center/           # Command Center components
+│   │   ├── LogEntry.tsx         # Single log entry (React.memo)
+│   │   ├── ManualOverrideToggle.tsx  # Override mode toggle
+│   │   ├── MetricCard.tsx       # Single metric display
+│   │   ├── MetricsGrid.tsx      # Grid of 4 metrics
+│   │   └── PipelineLogFeed.tsx  # Scrollable log feed
+│   │
+│   ├── kds/                      # Kitchen Display System components
+│   │   ├── ColumnContainer.tsx  # Droppable kanban column
+│   │   ├── KanbanBoard.tsx      # Drag-and-drop board
+│   │   └── OrderCard.tsx        # Single order card (React.memo)
+│   │
+│   ├── ai-hub/                   # AI Hub components
+│   │   ├── DemandChart.tsx      # Demand forecasting chart
+│   │   ├── InventoryItem.tsx    # Single inventory item (React.memo)
+│   │   ├── InventoryList.tsx    # Grid of inventory items
+│   │   ├── InventoryProgressBar.tsx  # Stock level progress bar
+│   │   └── StockAlerts.tsx      # At-risk items panel
+│   │
+│   └── staff-dispatch/           # Staff Dispatch components
+│       ├── TaskCard.tsx         # Single task card (React.memo)
+│       ├── TaskFilters.tsx      # Filter controls
+│       ├── TaskList.tsx         # List of tasks
+│       └── TaskStatusBadge.tsx  # Task status badge
+│
+├── hooks/                        # Custom React hooks
+│   ├── useInventory.ts          # Inventory CRUD operations
+│   ├── useMetrics.ts            # Derived metrics calculation
+│   ├── useOrders.ts             # Order CRUD operations
+│   ├── usePipelineLogs.ts       # Log management
+│   ├── useRealtime.ts           # Supabase Realtime subscriptions
+│   └── useStaffTasks.ts         # Task management
+│
+├── lib/                          # Business logic & utilities
+│   ├── automation.ts            # Automation engine (side effects)
+│   ├── automation.test.ts       # Automation tests
+│   ├── calculations.ts          # Priority score & metrics
+│   ├── calculations.test.ts     # Calculation tests
+│   ├── ingredientMap.ts         # Menu item → inventory mapping
+│   ├── mockData.ts              # Mock data for offline mode
+│   ├── mockData.test.ts         # Mock data tests
+│   ├── stateMachine.ts          # Order state machine
+│   ├── stateMachine.test.ts     # State machine tests
+│   ├── supabase.ts              # Supabase client wrapper
+│   ├── supabase.test.ts         # Supabase tests
+│   └── utils.ts                 # Utility functions
+│
+├── store/                        # State management
+│   ├── index.ts                 # Zustand store
+│   ├── index.test.ts            # Store tests
+│   └── example-usage.tsx        # Usage examples
+│
+├── types/                        # TypeScript type definitions
+│   ├── index.ts                 # Core types & interfaces
+│   └── index.test.ts            # Type tests
+│
+├── supabase/                     # Database migrations
+│   └── migrations/
+│       └── 001_initial_schema.sql  # Initial database schema
+│
+├── docs/                         # Documentation
+│   ├── handoff.md               # Project handoff document
+│   ├── roadmap.md               # Feature roadmap
+│   └── structure.md             # This file
+│
+├── public/                       # Static assets
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+│
+├── test/                         # Test configuration
+│   └── setup.ts                 # Vitest setup
+│
+├── .env.local                    # Environment variables (not in git)
+├── .gitignore                    # Git ignore rules
+├── eslint.config.mjs             # ESLint configuration
+├── next.config.ts                # Next.js configuration
+├── package.json                  # Dependencies & scripts
+├── postcss.config.mjs            # PostCSS configuration
+├── README.md                     # Getting started guide
+├── PROJECT_SUMMARY.md            # Complete project summary
+├── tailwind.config.ts            # Tailwind CSS configuration
+├── tsconfig.json                 # TypeScript configuration
+├── vercel.json                   # Vercel deployment config
+└── vitest.config.ts              # Vitest test configuration
+```
 
 ---
 
-## Root Configuration Files
+## File Purposes
 
-### Build & Development Tools
-- **`vite.config.ts`** - Vite build configuration with code splitting, optimization settings, and React plugin
-- **`vitest.config.ts`** - Vitest test runner configuration for unit and property-based tests
-- **`package.json`** - Project dependencies and npm scripts
-- **`package-lock.json`** - Locked dependency versions for reproducible builds
+### App Router Pages
 
-### TypeScript Configuration
-- **`tsconfig.json`** - Root TypeScript configuration
-- **`tsconfig.app.json`** - TypeScript configuration for application code
-- **`tsconfig.node.json`** - TypeScript configuration for Node.js tooling (Vite config, etc.)
+**app/command-center/page.tsx**
+- Command Center dashboard
+- Displays metrics, logs, and manual override toggle
+- Composes MetricsGrid, PipelineLogFeed, ManualOverrideToggle
 
-### Styling & Linting
-- **`tailwind.config.ts`** - Tailwind CSS configuration with custom design tokens (cyber-industrial theme)
-- **`postcss.config.js`** - PostCSS configuration for Tailwind CSS processing
-- **`eslint.config.js`** - ESLint configuration for code quality and React best practices
+**app/kitchen/page.tsx**
+- Kitchen Display System
+- Drag-and-drop kanban board for orders
+- Composes KanbanBoard component
 
-### Environment & Git
-- **`.env.local`** - Local environment variables (Supabase URL and anon key) - **NOT COMMITTED TO GIT**
-- **`.gitignore`** - Git ignore rules (excludes node_modules, dist, .env.local)
+**app/ai-hub/page.tsx**
+- AI Hub for inventory and forecasting
+- Demand chart, inventory list, stock alerts
+- Composes DemandChart, InventoryList, StockAlerts
 
-### HTML Entry Point
-- **`index.html`** - HTML entry point for Vite, loads the React application
+**app/staff/page.tsx**
+- Staff Dispatch system
+- Task management with filters
+- Composes TaskFilters, TaskList
+
+**app/layout.tsx**
+- Root layout wrapper
+- Includes AppShell with Sidebar and TopBar
+- Applies global styles
+
+**app/page.tsx**
+- Home page
+- Redirects to /command-center
+
+---
+
+### UI Components
+
+**components/ui/Badge.tsx**
+- Reusable badge component
+- Variants: success, warning, danger, info
+- Used for status indicators
+
+**components/ui/Button.tsx**
+- Reusable button component
+- Variants: primary, secondary, danger
+- Includes hover states and accessibility
+
+**components/ui/Card.tsx**
+- Card surface component
+- Consistent border and padding
+- Used for all card-based layouts
+
+**components/ui/ErrorBadge.tsx**
+- Inline error display
+- Shows error messages with icon
+- Used in loading/error states
+
+**components/ui/ProgressBar.tsx**
+- Color-coded progress bar
+- Green (>50%), Amber (20-50%), Red (<20%)
+- Used for stock levels
+
+**components/ui/SkeletonLoader.tsx**
+- Loading state placeholder
+- Animated skeleton effect
+- Used while data is loading
+
+---
+
+### Layout Components
+
+**components/layout/AppShell.tsx**
+- Main layout wrapper
+- Composes Sidebar, TopBar, and page content
+- Consistent layout across all pages
+
+**components/layout/Sidebar.tsx**
+- Navigation sidebar
+- Links to all 4 modules
+- Highlights active module
+
+**components/layout/TopBar.tsx**
+- Top bar with system status
+- Shows current time, offline badge
+- Manual override warning banner
+
+---
+
+### Feature Components
+
+**Command Center**:
+- **LogEntry.tsx**: Single log entry (React.memo)
+- **ManualOverrideToggle.tsx**: Toggle for manual override mode
+- **MetricCard.tsx**: Single metric display with currency formatting
+- **MetricsGrid.tsx**: Grid of 4 metrics (revenue, orders, wait time, tasks)
+- **PipelineLogFeed.tsx**: Scrollable log feed with auto-scroll
+
+**Kitchen Display System**:
+- **ColumnContainer.tsx**: Droppable kanban column
+- **KanbanBoard.tsx**: Drag-and-drop board with state validation
+- **OrderCard.tsx**: Single order card (React.memo, priority, timer)
+
+**AI Hub**:
+- **DemandChart.tsx**: Demand forecasting with Recharts
+- **InventoryItem.tsx**: Single inventory item (React.memo)
+- **InventoryList.tsx**: Grid of inventory items
+- **InventoryProgressBar.tsx**: Color-coded stock level bar
+- **StockAlerts.tsx**: At-risk items panel
+
+**Staff Dispatch**:
+- **TaskCard.tsx**: Single task card (React.memo)
+- **TaskFilters.tsx**: Filter controls for status/priority
+- **TaskList.tsx**: List of tasks with sorting
+- **TaskStatusBadge.tsx**: Task status badge
+
+---
+
+### Custom Hooks
+
+**hooks/useInventory.ts**
+- Fetches inventory from Supabase or mock data
+- Provides updateStockLevel, addInventoryItem functions
+- Returns loading, error, data states
+
+**hooks/useMetrics.ts**
+- Calculates derived metrics from orders and tasks
+- Uses useMemo for performance
+- Filters to current day only
+
+**hooks/useOrders.ts**
+- Fetches orders from Supabase or mock data
+- Provides updateOrderStatus, addOrder, deleteOrder functions
+- Recalculates priority scores every 30 seconds
+
+**hooks/usePipelineLogs.ts**
+- Fetches logs from Supabase or mock data
+- Provides createLog function
+- Returns loading, error, data states
+
+**hooks/useRealtime.ts**
+- Sets up Supabase Realtime subscriptions
+- Falls back to polling if Realtime unavailable
+- Detects offline mode
+
+**hooks/useStaffTasks.ts**
+- Fetches tasks from Supabase or mock data
+- Provides createTask, updateTaskStatus, assignTask functions
+- Implements round-robin assignment
+
+---
+
+### Business Logic
+
+**lib/automation.ts**
+- Automation engine for order pipeline
+- Executes side effects on state transitions
+- Creates tasks, decrements inventory
+- Idempotent operations
+
+**lib/calculations.ts**
+- Priority score calculation
+- Countdown timer calculation
+- Metrics calculations (revenue, wait time)
+
+**lib/ingredientMap.ts**
+- Maps menu items to inventory ingredients
+- Defines quantity deductions per item
+
+**lib/mockData.ts**
+- Mock data for offline mode
+- Sample orders, inventory, tasks, logs
+
+**lib/stateMachine.ts**
+- Order state machine
+- Validates transitions
+- Handles manual override
+
+**lib/supabase.ts**
+- Supabase client wrapper
+- Typed query helpers
+- Error handling with fallback
+
+**lib/utils.ts**
+- Utility functions
+- Current day filtering
+- Currency formatting
+- Duration formatting
+
+---
+
+### State Management
+
+**store/index.ts**
+- Zustand store for global state
+- Manual override mode
+- Offline mode status
+- Selected module
+
+**store/example-usage.tsx**
+- Usage examples for the store
+- Demonstrates how to use actions
+
+---
+
+### Type Definitions
+
+**types/index.ts**
+- Core TypeScript interfaces
+- Order, OrderItem, OrderStatus
+- InventoryItem, StaffTask, PipelineLog
+- DemandForecast
+
+---
+
+### Database
+
+**supabase/migrations/001_initial_schema.sql**
+- Initial database schema
+- Creates orders, inventory, staff_tasks, pipeline_logs tables
+- Sets up indexes, RLS policies, Realtime publication
+- Includes sample data
+
+---
+
+### Configuration Files
+
+**next.config.ts**
+- Next.js configuration
+- Compression, code splitting
+- Package import optimization
+
+**tailwind.config.ts**
+- Tailwind CSS configuration
+- Custom colors, fonts, spacing
+- Design system tokens
+
+**tsconfig.json**
+- TypeScript configuration
+- Strict mode enabled
+- Path aliases (@/*)
+
+**vitest.config.ts**
+- Vitest test configuration
+- Test environment setup
+- Coverage settings
+
+**vercel.json**
+- Vercel deployment configuration
+- Build command, output directory
+- Environment variable references
+
+**eslint.config.mjs**
+- ESLint configuration
+- Code linting rules
+
+**postcss.config.mjs**
+- PostCSS configuration
+- Tailwind CSS processing
+
+---
 
 ### Documentation
-- **`README.md`** - Project overview and setup instructions
-- **`docs/structure.md`** - This file - comprehensive source file documentation
-- **`docs/handoff.md`** - Current project state and next steps for developers
-- **`docs/roadmap.md`** - Feature roadmap and technical decisions
+
+**README.md**
+- Getting started guide
+- Installation instructions
+- Available scripts
+- Deployment guide
+
+**PROJECT_SUMMARY.md**
+- Complete project summary
+- Feature showcase
+- Technical architecture
+- Success metrics
+
+**docs/handoff.md**
+- Project handoff document
+- Current status
+- Feature details
+- Troubleshooting
+
+**docs/roadmap.md**
+- Feature roadmap
+- Technical decisions
+- Future enhancements
+
+**docs/structure.md**
+- This file
+- Project structure
+- File purposes
 
 ---
 
-## Source Code (`src/`)
+## Key Patterns
 
-### Application Entry Points
-- **`src/main.tsx`** - React application entry point, renders root component
-- **`src/App.tsx`** - Root application component (currently Vite default, will be replaced with router)
-- **`src/App.css`** - Application-level styles (currently Vite default)
-- **`src/index.css`** - Global styles and Tailwind CSS imports
+### Component Organization
+- **UI primitives** in `components/ui/`
+- **Layout components** in `components/layout/`
+- **Feature components** in `components/{feature}/`
 
-### Test Configuration
-- **`src/test/setup.ts`** - Vitest test setup and global test configuration
+### Code Organization
+- **Business logic** in `lib/`
+- **Data fetching** in `hooks/`
+- **State management** in `store/`
+- **Type definitions** in `types/`
 
-### Assets (`src/assets/`)
-- **`src/assets/react.svg`** - React logo (Vite default)
-- **`src/assets/vite.svg`** - Vite logo (Vite default)
-- **`src/assets/hero.png`** - Hero image (Vite default)
+### Testing Organization
+- **Test files** co-located with source files
+- **Test setup** in `test/setup.ts`
+- **Property tests** using fast-check
 
----
-
-## Public Assets (`public/`)
-
-- **`public/favicon.svg`** - Browser favicon
-- **`public/icons.svg`** - SVG sprite sheet for application icons
-
----
-
-## Future Source Structure
-
-The following directories and files will be created as implementation progresses:
-
-### Type Definitions (`src/types/`)
-- `src/types/index.ts` - Core TypeScript interfaces (Order, InventoryItem, StaffTask, PipelineLog, etc.)
-
-### Business Logic (`src/lib/`)
-- `src/lib/stateMachine.ts` - Order pipeline state machine and transition validation
-- `src/lib/calculations.ts` - Priority score, metrics, and timer calculations
-- `src/lib/automation.ts` - Automation engine for side effects (task creation, inventory deduction)
-- `src/lib/ingredientMap.ts` - Hardcoded ingredient-to-inventory deduction mapping
-- `src/lib/supabase.ts` - Supabase client wrapper with typed query helpers
-- `src/lib/mockData.ts` - Mock data for offline mode and testing
-
-### State Management (`src/store/`)
-- `src/store/index.ts` - Zustand global store (manual override mode, offline mode, navigation)
-
-### Custom Hooks (`src/hooks/`)
-- `src/hooks/useOrders.ts` - Order CRUD operations and state management
-- `src/hooks/useInventory.ts` - Inventory management and stock level updates
-- `src/hooks/useStaffTasks.ts` - Task management and round-robin assignment
-- `src/hooks/usePipelineLogs.ts` - Log creation and retrieval
-- `src/hooks/useMetrics.ts` - Derived metrics calculation (revenue, wait time, etc.)
-- `src/hooks/useRealtime.ts` - Supabase Realtime subscriptions with polling fallback
-
-### UI Primitives (`src/components/ui/`)
-- `src/components/ui/Button.tsx` - Reusable button component with variants
-- `src/components/ui/Card.tsx` - Card surface component
-- `src/components/ui/Badge.tsx` - Badge component with color variants
-- `src/components/ui/ProgressBar.tsx` - Progress bar with color coding
-- `src/components/ui/SkeletonLoader.tsx` - Loading state skeleton
-- `src/components/ui/ErrorBadge.tsx` - Inline error display
-
-### Layout Components (`src/components/layout/`)
-- `src/components/layout/Sidebar.tsx` - Navigation sidebar
-- `src/components/layout/TopBar.tsx` - System status and user controls
-- `src/components/layout/AppShell.tsx` - Main layout wrapper
-
-### Command Center Module (`src/components/command-center/`)
-- `src/components/command-center/MetricCard.tsx` - Individual metric display
-- `src/components/command-center/MetricsGrid.tsx` - Grid of metric cards
-- `src/components/command-center/LogEntry.tsx` - Single log entry display
-- `src/components/command-center/PipelineLogFeed.tsx` - Scrollable log feed
-- `src/components/command-center/ManualOverrideToggle.tsx` - Manual override control
-
-### Kitchen Display System Module (`src/components/kds/`)
-- `src/components/kds/OrderCard.tsx` - Draggable order card
-- `src/components/kds/ColumnContainer.tsx` - Kanban column
-- `src/components/kds/KanbanBoard.tsx` - Drag-and-drop kanban board
-
-### AI Hub Module (`src/components/ai-hub/`)
-- `src/components/ai-hub/InventoryProgressBar.tsx` - Stock level progress bar
-- `src/components/ai-hub/InventoryItem.tsx` - Individual inventory item display
-- `src/components/ai-hub/InventoryList.tsx` - List of inventory items
-- `src/components/ai-hub/StockAlerts.tsx` - At-risk items alert list
-- `src/components/ai-hub/DemandChart.tsx` - Demand forecasting chart
-
-### Staff Dispatch Module (`src/components/staff-dispatch/`)
-- `src/components/staff-dispatch/TaskStatusBadge.tsx` - Task status indicator
-- `src/components/staff-dispatch/TaskCard.tsx` - Individual task card
-- `src/components/staff-dispatch/TaskFilters.tsx` - Task filtering controls
-- `src/components/staff-dispatch/TaskList.tsx` - List of tasks
-
-### Pages (`src/pages/`)
-- `src/pages/CommandCenter.tsx` - Command Center page
-- `src/pages/KitchenDisplay.tsx` - Kitchen Display System page
-- `src/pages/AIHub.tsx` - AI Hub page
-- `src/pages/StaffDispatch.tsx` - Staff Dispatch page
-
-### Tests (`tests/`)
-- `tests/properties/` - Property-based tests using fast-check
-  - `stateMachine.property.test.ts`
-  - `calculations.property.test.ts`
-  - `automation.property.test.ts`
-  - `sorting.property.test.ts`
-  - `formatting.property.test.ts`
-- `tests/unit/` - Unit tests for components, hooks, and utilities
-- `tests/integration/` - Integration tests for Supabase and end-to-end flows
+### Performance Patterns
+- **React.memo** on list item components
+- **useCallback** for callback props
+- **useMemo** for expensive computations
+- **Code splitting** via Next.js
 
 ---
 
-## Build Output (`dist/`)
+## Import Aliases
 
-Generated by `npm run build`, contains production-ready static assets:
-- `dist/index.html` - Production HTML entry point
-- `dist/assets/` - Bundled and minified JavaScript, CSS, and assets
-- `dist/favicon.svg` - Favicon
-- `dist/icons.svg` - Icon sprite sheet
+**Configured in tsconfig.json**:
+```typescript
+@/components/* → components/*
+@/hooks/* → hooks/*
+@/lib/* → lib/*
+@/store/* → store/*
+@/types/* → types/*
+```
 
----
-
-## Dependencies
-
-### Core Dependencies
-- **React 18** - UI framework
-- **TypeScript** - Type-safe JavaScript
-- **Vite** - Build tool and dev server
-- **Tailwind CSS** - Utility-first CSS framework
-
-### Backend & State
-- **@supabase/supabase-js** - Supabase client for database and auth
-- **zustand** - Lightweight state management
-
-### UI Libraries
-- **@hello-pangea/dnd** - Accessible drag-and-drop for kanban board
-- **recharts** - Charting library for demand forecasting
-- **lucide-react** - Icon library
-- **date-fns** - Date manipulation utilities
-
-### Testing
-- **vitest** - Fast unit test runner
-- **@testing-library/react** - React component testing utilities
-- **fast-check** - Property-based testing library
-
-### Development Tools
-- **ESLint** - Code linting
-- **TypeScript ESLint** - TypeScript-specific linting rules
-- **Autoprefixer** - CSS vendor prefix automation
+**Example**:
+```typescript
+import { useOrders } from '@/hooks/useOrders';
+import { Order } from '@/types';
+import { calculatePriorityScore } from '@/lib/calculations';
+```
 
 ---
 
-## Notes
+## File Naming Conventions
 
-- All source files follow TypeScript strict mode
-- Components use functional components with hooks (no class components)
-- Styling uses Tailwind CSS utility classes (no CSS modules or styled-components)
-- All async operations include error handling with fallback to mock data
-- Real-time updates use Supabase Realtime with polling fallback
+- **Components**: PascalCase (e.g., `OrderCard.tsx`)
+- **Hooks**: camelCase with `use` prefix (e.g., `useOrders.ts`)
+- **Utilities**: camelCase (e.g., `stateMachine.ts`)
+- **Tests**: Same name with `.test.ts` suffix
+- **Types**: camelCase (e.g., `index.ts`)
+
+---
+
+## Code Style
+
+- **TypeScript**: Strict mode enabled
+- **Formatting**: Prettier (2 spaces, single quotes)
+- **Linting**: ESLint with Next.js rules
+- **Comments**: JSDoc for public APIs
+- **Exports**: Named exports preferred
+
+---
+
+**Last Updated**: April 15, 2026  
+**Total Files**: 72  
+**Total Lines**: ~15,000+

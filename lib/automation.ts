@@ -20,6 +20,15 @@ const dispatchedOrders = new Set<string>();
 const restockTasks = new Map<string, string>();
 
 /**
+ * Reset internal state (for testing purposes)
+ */
+export function resetAutomationState(): void {
+  createdTasks.clear();
+  dispatchedOrders.clear();
+  restockTasks.clear();
+}
+
+/**
  * Executes side effects when an order transitions to a new status
  * Validates: Requirements 1.3, 1.4, 1.5
  */
