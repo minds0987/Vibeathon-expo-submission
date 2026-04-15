@@ -4,6 +4,7 @@
 import React, { memo } from 'react';
 import { Order } from '@/types';
 import { Card } from '@/components/ui/Card';
+import { downloadReceipt, printReceipt } from '@/lib/receipt';
 
 export interface OrderCardProps {
   order: Order;
@@ -19,6 +20,16 @@ export const OrderCard = memo(function OrderCard({ order, isEditable = false }: 
   const showWarning = order.countdownTimer !== null && 
     order.countdownTimer > 0 &&
     order.countdownTimer < (order.countdownTimer * 5); // Simplified check
+
+  const handleDownloadReceipt = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    downloadReceipt(order);
+  };
+
+  const handlePrintReceipt = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    printReceipt(order);
+  };
 
   return (
     <Card className={`${isEditable ? 'cursor-grab active:cursor-grabbing hover:border-lime-400' : 'cursor-default'} transition-colors`}>
@@ -52,6 +63,25 @@ export const OrderCard = memo(function OrderCard({ order, isEditable = false }: 
             </span>
           )}
         </div>
+
+        {/* Receipt Actions */}
+        <div className="flex gap-2 pt-2 border-t border-gray-700">
+          <button
+            onClick={handleDownloadReceipt}
+            className="flex-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+            title="Download Receipt"
+          >
+            📄 Download
+          </button>
+          <button
+            onClick={handlePrintReceipt}
+            className="flex-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+            title="Print Receipt"
+          >
+            🖨️ Print
+          </button>
+        </div>
+
         {isEditable && (
           <div className="pt-2 border-t border-gray-700">
             <p className="text-xs text-lime-400 flex items-center gap-1">

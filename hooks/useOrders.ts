@@ -8,6 +8,7 @@ import { Order, OrderStatus } from '@/types';
 import { fetchOrders, updateOrderStatus as updateOrderStatusAPI } from '@/lib/supabase';
 import { mockOrders } from '@/lib/mockData';
 import { calculatePriorityScore } from '@/lib/calculations';
+import { supabase } from '@/lib/supabase';
 
 export function useOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -72,12 +73,31 @@ export function useOrders() {
 
   const addOrder = useCallback(async (order: Omit<Order, 'id'>) => {
     try {
-      // TODO: Implement addOrder API call
       const newOrder: Order = {
         ...order,
         id: `order-${Date.now()}`,
       };
+      
+      // Add to Supabase
+      const { error } = await supabase
+        .from('orders')
+        .insert({
+          id: newOrder.id,
+          table_number: newOrder.tableNumber,
+          items: newOrder.items,
+          status: newOrder.status,
+          priority_score: newOrder.priorityScore,
+          created_at: newOrder.createdAt,
+          started_at: newOrder.startedAt,
+          dispatched_at: newOrder.dispatchedAt,
+          countdown_timer: newOrder.countdownTimer,
+        });
+
+      if (error) throw error;
+
+      // Update local state
       setOrders(prev => [...prev, newOrder]);
+      console.log('[useOrders] Successfully added order:', newOrder.id);
     } catch (err) {
       console.error('[useOrders] Failed to add order:', err);
       throw err;
