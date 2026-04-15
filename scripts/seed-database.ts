@@ -69,7 +69,6 @@ async function seedDatabase() {
       status: task.status,
       priority: task.priority,
       created_at: task.createdAt,
-      completed_at: task.completedAt,
     }));
 
     const { error: tasksError } = await supabase
