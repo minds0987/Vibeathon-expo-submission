@@ -1,7 +1,7 @@
 // Log entry component
 // Validates: Requirements 8.2, 8.4
 
-import React from 'react';
+import React, { memo } from 'react';
 import { PipelineLog } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 
@@ -9,7 +9,7 @@ export interface LogEntryProps {
   log: PipelineLog;
 }
 
-export function LogEntry({ log }: LogEntryProps) {
+const LogEntry = memo(function LogEntry({ log }: LogEntryProps) {
   const levelVariant = {
     INFO: 'info' as const,
     WARN: 'warning' as const,
@@ -29,4 +29,7 @@ export function LogEntry({ log }: LogEntryProps) {
       <p className="text-sm text-gray-300 flex-1">{log.message}</p>
     </div>
   );
-}
+});
+
+export default LogEntry;
+

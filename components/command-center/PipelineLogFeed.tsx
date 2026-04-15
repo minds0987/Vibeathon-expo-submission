@@ -5,7 +5,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/Card';
-import { LogEntry } from './LogEntry';
+import LogEntry from './LogEntry';
 import { PipelineLog } from '@/types';
 
 export interface PipelineLogFeedProps {
