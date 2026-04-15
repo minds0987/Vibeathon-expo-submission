@@ -1,7 +1,7 @@
 // Order card component for KDS
 // Validates: Requirements 5.2, 5.6
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Order } from '@/types';
 import { Card } from '@/components/ui/Card';
 
@@ -9,7 +9,7 @@ export interface OrderCardProps {
   order: Order;
 }
 
-export function OrderCard({ order }: OrderCardProps) {
+export const OrderCard = memo(function OrderCard({ order }: OrderCardProps) {
   const elapsedTime = Math.floor(
     (Date.now() - new Date(order.createdAt).getTime()) / 60000
   );
@@ -54,4 +54,4 @@ export function OrderCard({ order }: OrderCardProps) {
       </div>
     </Card>
   );
-}
+});

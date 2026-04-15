@@ -1,7 +1,7 @@
 // Task card component
 // Validates: Requirements 4.1
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Card } from '@/components/ui/Card';
 import { TaskStatusBadge } from './TaskStatusBadge';
 import { StaffTask } from '@/types';
@@ -10,7 +10,7 @@ export interface TaskCardProps {
   task: StaffTask;
 }
 
-export function TaskCard({ task }: TaskCardProps) {
+export const TaskCard = memo(function TaskCard({ task }: TaskCardProps) {
   const priorityColor = {
     high: 'text-red-400',
     medium: 'text-amber-400',
@@ -44,4 +44,4 @@ export function TaskCard({ task }: TaskCardProps) {
       </div>
     </Card>
   );
-}
+});

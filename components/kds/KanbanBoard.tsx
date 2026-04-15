@@ -3,7 +3,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { DragDropContext, Draggable, DropResult } from '@hello-pangea/dnd';
 import { ColumnContainer } from './ColumnContainer';
 import { OrderCard } from './OrderCard';
@@ -26,15 +26,17 @@ const COLUMNS: { id: OrderStatus; title: string }[] = [
 export function KanbanBoard({ orders, onOrderMove }: KanbanBoardProps) {
   const { manualOverrideMode } = useKitchenOSStore();
 
-  // Sort pending orders by priority score (descending)
-  const sortedOrders = [...orders].sort((a, b) => {
-    if (a.status === 'pending' && b.status === 'pending') {
-      return b.priorityScore - a.priorityScore;
-    }
-    return 0;
-  });
+  // Sort pending orders by priority score (descending) - memoized
+  const sortedOrders = useMemo(() => {
+    return [...orders].sort((a, b) => {
+      if (a.status === 'pending' && b.status === 'pending') {
+        return b.priorityScore - a.priorityScore;
+      }
+      return 0;
+    });
+  }, [orders]);
 
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = useCallback((result: DropResult) => {
     const { source, destination, draggableId } = result;
 
     if (!destination) return;
@@ -52,7 +54,7 @@ export function KanbanBoard({ orders, onOrderMove }: KanbanBoardProps) {
     }
 
     onOrderMove(draggableId, newStatus);
-  };
+  }, [orders, manualOverrideMode, onOrderMove]);
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>

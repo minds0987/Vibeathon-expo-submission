@@ -3,10 +3,11 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Order, OrderStatus } from '@/types';
 import { fetchOrders, updateOrderStatus as updateOrderStatusAPI } from '@/lib/supabase';
 import { mockOrders } from '@/lib/mockData';
+import { calculatePriorityScore } from '@/lib/calculations';
 
 export function useOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -15,6 +16,23 @@ export function useOrders() {
 
   useEffect(() => {
     loadOrders();
+
+    // Recalculate priority scores every 30 seconds for pending orders
+    const intervalId = setInterval(() => {
+      setOrders(prev =>
+        prev.map(order => {
+          if (order.status === 'pending') {
+            return {
+              ...order,
+              priorityScore: calculatePriorityScore(order),
+            };
+          }
+          return order;
+        })
+      );
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const loadOrders = async () => {
@@ -33,7 +51,7 @@ export function useOrders() {
     }
   };
 
-  const updateOrderStatus = async (id: string, status: OrderStatus) => {
+  const updateOrderStatus = useCallback(async (id: string, status: OrderStatus) => {
     try {
       await updateOrderStatusAPI(id, status);
       // Update local state
@@ -46,9 +64,9 @@ export function useOrders() {
       console.error('[useOrders] Failed to update order status:', err);
       throw err;
     }
-  };
+  }, []);
 
-  const addOrder = async (order: Omit<Order, 'id'>) => {
+  const addOrder = useCallback(async (order: Omit<Order, 'id'>) => {
     try {
       // TODO: Implement addOrder API call
       const newOrder: Order = {
@@ -60,9 +78,9 @@ export function useOrders() {
       console.error('[useOrders] Failed to add order:', err);
       throw err;
     }
-  };
+  }, []);
 
-  const deleteOrder = async (id: string) => {
+  const deleteOrder = useCallback(async (id: string) => {
     try {
       // TODO: Implement deleteOrder API call
       setOrders(prev => prev.filter(order => order.id !== id));
@@ -70,7 +88,7 @@ export function useOrders() {
       console.error('[useOrders] Failed to delete order:', err);
       throw err;
     }
-  };
+  }, []);
 
   return {
     orders,
