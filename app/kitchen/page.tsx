@@ -9,9 +9,12 @@ import { useOrders } from '@/hooks/useOrders';
 import { OrderStatus } from '@/types';
 import { SkeletonLoader } from '@/components/ui/SkeletonLoader';
 import { ErrorBadge } from '@/components/ui/ErrorBadge';
+import { Button } from '@/components/ui/Button';
+import { useKitchenOSStore } from '@/store';
 
 export default function KitchenDisplay() {
   const { orders, loading, error, updateOrderStatus } = useOrders();
+  const { manualOverrideMode, setManualOverrideMode } = useKitchenOSStore();
 
   const handleOrderMove = async (orderId: string, newStatus: OrderStatus) => {
     try {
@@ -41,7 +44,15 @@ export default function KitchenDisplay() {
 
   return (
     <div className="space-y-6 h-full flex flex-col">
-      <h1 className="text-3xl font-bold">Kitchen Display</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Kitchen Display</h1>
+        <Button
+          variant={manualOverrideMode ? 'danger' : 'secondary'}
+          onClick={() => setManualOverrideMode(!manualOverrideMode)}
+        >
+          {manualOverrideMode ? '🔓 Manual Override ON' : '🔒 Manual Override OFF'}
+        </Button>
+      </div>
       
       <div className="flex-1 overflow-hidden">
         <KanbanBoard orders={orders} onOrderMove={handleOrderMove} />

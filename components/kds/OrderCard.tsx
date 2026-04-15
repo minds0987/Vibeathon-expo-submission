@@ -7,9 +7,10 @@ import { Card } from '@/components/ui/Card';
 
 export interface OrderCardProps {
   order: Order;
+  isEditable?: boolean;
 }
 
-export const OrderCard = memo(function OrderCard({ order }: OrderCardProps) {
+export const OrderCard = memo(function OrderCard({ order, isEditable = false }: OrderCardProps) {
   const elapsedTime = Math.floor(
     (Date.now() - new Date(order.createdAt).getTime()) / 60000
   );
@@ -20,7 +21,7 @@ export const OrderCard = memo(function OrderCard({ order }: OrderCardProps) {
     order.countdownTimer < (order.countdownTimer * 5); // Simplified check
 
   return (
-    <Card className="cursor-move hover:border-lime-400 transition-colors">
+    <Card className={`${isEditable ? 'cursor-grab active:cursor-grabbing hover:border-lime-400' : 'cursor-default'} transition-colors`}>
       <div className="space-y-2">
         <div className="flex items-start justify-between">
           <div>
@@ -51,6 +52,13 @@ export const OrderCard = memo(function OrderCard({ order }: OrderCardProps) {
             </span>
           )}
         </div>
+        {isEditable && (
+          <div className="pt-2 border-t border-gray-700">
+            <p className="text-xs text-lime-400 flex items-center gap-1">
+              <span>⋮⋮</span> Drag to move
+            </p>
+          </div>
+        )}
       </div>
     </Card>
   );

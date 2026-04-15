@@ -37,6 +37,11 @@ export function KanbanBoard({ orders, onOrderMove }: KanbanBoardProps) {
   }, [orders]);
 
   const handleDragEnd = useCallback((result: DropResult) => {
+    // Only allow drag and drop in manual override mode
+    if (!manualOverrideMode) {
+      return;
+    }
+
     const { source, destination, draggableId } = result;
 
     if (!destination) return;
@@ -58,6 +63,20 @@ export function KanbanBoard({ orders, onOrderMove }: KanbanBoardProps) {
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
+      {!manualOverrideMode && (
+        <div className="mb-4 p-3 bg-blue-900/20 border border-blue-700 rounded-lg">
+          <p className="text-sm text-blue-300">
+            🔒 Board is read-only. Enable <strong>Manual Override Mode</strong> to drag and reorder cards.
+          </p>
+        </div>
+      )}
+      {manualOverrideMode && (
+        <div className="mb-4 p-3 bg-orange-900/20 border border-orange-700 rounded-lg">
+          <p className="text-sm text-orange-300">
+            ✏️ <strong>Manual Override Active</strong> - You can now drag cards between columns. Changes are saved automatically.
+          </p>
+        </div>
+      )}
       <div className="grid grid-cols-4 gap-4 h-full">
         {COLUMNS.map((column) => {
           const columnOrders = sortedOrders.filter(o => o.status === column.id);
@@ -70,14 +89,20 @@ export function KanbanBoard({ orders, onOrderMove }: KanbanBoardProps) {
               count={columnOrders.length}
             >
               {columnOrders.map((order, index) => (
-                <Draggable key={order.id} draggableId={order.id} index={index}>
-                  {(provided) => (
+                <Draggable 
+                  key={order.id} 
+                  draggableId={order.id} 
+                  index={index}
+                  isDragDisabled={!manualOverrideMode}
+                >
+                  {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
+                      className={snapshot.isDragging ? 'opacity-50' : ''}
                     >
-                      <OrderCard order={order} />
+                      <OrderCard order={order} isEditable={manualOverrideMode} />
                     </div>
                   )}
                 </Draggable>
