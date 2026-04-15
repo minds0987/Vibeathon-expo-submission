@@ -3,7 +3,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { KanbanBoard } from '@/components/kds/KanbanBoard';
 import { useOrders } from '@/hooks/useOrders';
 import { OrderStatus } from '@/types';
@@ -15,12 +15,28 @@ import { useKitchenOSStore } from '@/store';
 export default function KitchenDisplay() {
   const { orders, loading, error, updateOrderStatus } = useOrders();
   const { manualOverrideMode, setManualOverrideMode } = useKitchenOSStore();
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const handleOrderMove = async (orderId: string, newStatus: OrderStatus) => {
     try {
+      setSaving(true);
+      setSaveError(null);
+      setSaveSuccess(false);
+      
+      console.log(`[KitchenDisplay] Moving order ${orderId} to ${newStatus}`);
       await updateOrderStatus(orderId, newStatus);
+      
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+      console.log(`[KitchenDisplay] Successfully moved order ${orderId} to ${newStatus}`);
     } catch (err) {
-      console.error('Failed to update order status:', err);
+      console.error('[KitchenDisplay] Failed to update order status:', err);
+      setSaveError(err instanceof Error ? err.message : 'Failed to save changes');
+      setTimeout(() => setSaveError(null), 5000);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -45,7 +61,18 @@ export default function KitchenDisplay() {
   return (
     <div className="space-y-6 h-full flex flex-col">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Kitchen Display</h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-3xl font-bold">Kitchen Display</h1>
+          {saving && (
+            <span className="text-sm text-blue-400 animate-pulse">💾 Saving...</span>
+          )}
+          {saveSuccess && (
+            <span className="text-sm text-green-400">✅ Saved to database</span>
+          )}
+          {saveError && (
+            <span className="text-sm text-red-400">❌ {saveError}</span>
+          )}
+        </div>
         <Button
           variant={manualOverrideMode ? 'danger' : 'secondary'}
           onClick={() => setManualOverrideMode(!manualOverrideMode)}

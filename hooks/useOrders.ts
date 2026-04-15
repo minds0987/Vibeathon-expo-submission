@@ -53,6 +53,7 @@ export function useOrders() {
 
   const updateOrderStatus = useCallback(async (id: string, status: OrderStatus) => {
     try {
+      console.log(`[useOrders] Updating order ${id} to status: ${status}`);
       await updateOrderStatusAPI(id, status);
       // Update local state
       setOrders(prev =>
@@ -60,8 +61,11 @@ export function useOrders() {
           order.id === id ? { ...order, status } : order
         )
       );
+      console.log(`[useOrders] Successfully updated order ${id} to ${status}`);
     } catch (err) {
       console.error('[useOrders] Failed to update order status:', err);
+      // Show error to user
+      setError(`Failed to update order: ${err instanceof Error ? err.message : 'Unknown error'}`);
       throw err;
     }
   }, []);

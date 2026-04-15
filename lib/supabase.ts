@@ -50,7 +50,21 @@ export async function fetchOrders(): Promise<Order[]> {
 
     if (error) throw error;
 
-    return data as Order[];
+    // Transform snake_case to camelCase
+    const transformedData = data.map((row: any) => ({
+      id: row.id,
+      tableNumber: row.table_number,
+      items: row.items,
+      status: row.status,
+      priorityScore: row.priority_score,
+      createdAt: row.created_at,
+      startedAt: row.started_at,
+      dispatchedAt: row.dispatched_at,
+      countdownTimer: row.countdown_timer,
+    }));
+
+    console.log('[KitchenOS][fetchOrders] Fetched orders:', transformedData.length);
+    return transformedData as Order[];
   } catch (err) {
     console.error('[KitchenOS][fetchOrders]', err);
     await createPipelineLog({
@@ -71,23 +85,36 @@ export async function updateOrderStatus(
   updates?: Partial<Pick<Order, 'startedAt' | 'dispatchedAt' | 'countdownTimer'>>
 ): Promise<void> {
   if (!isSupabaseConfigured()) {
-    console.warn('[KitchenOS][updateOrderStatus] Supabase not configured. Using mock data.');
+    console.warn('[KitchenOS][updateOrderStatus] Supabase not configured. Changes will not persist.');
     return;
   }
 
   try {
+    console.log(`[KitchenOS][updateOrderStatus] Updating order ${id} to status: ${status}`);
+    
     const updateData: Record<string, unknown> = { status };
     
     if (updates?.startedAt !== undefined) updateData.started_at = updates.startedAt;
     if (updates?.dispatchedAt !== undefined) updateData.dispatched_at = updates.dispatchedAt;
     if (updates?.countdownTimer !== undefined) updateData.countdown_timer = updates.countdownTimer;
 
-    const { error } = await supabase
+    const { error, data } = await supabase
       .from('orders')
       .update(updateData)
-      .eq('id', id);
+      .eq('id', id)
+      .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('[KitchenOS][updateOrderStatus] Supabase error:', error);
+      throw error;
+    }
+
+    console.log('[KitchenOS][updateOrderStatus] Successfully updated order:', data);
+    
+    await createPipelineLog({
+      level: 'INFO',
+      message: `Order ${id} status updated to ${status}`,
+    });
   } catch (err) {
     console.error('[KitchenOS][updateOrderStatus]', err);
     await createPipelineLog({
@@ -116,7 +143,18 @@ export async function fetchInventory(): Promise<InventoryItem[]> {
 
     if (error) throw error;
 
-    return data as InventoryItem[];
+    // Transform snake_case to camelCase
+    const transformedData = data.map((row: any) => ({
+      id: row.id,
+      itemName: row.item_name,
+      stockLevel: row.stock_level,
+      reorderPoint: row.reorder_point,
+      unit: row.unit,
+      updatedAt: row.updated_at,
+    }));
+
+    console.log('[KitchenOS][fetchInventory] Fetched inventory items:', transformedData.length);
+    return transformedData as InventoryItem[];
   } catch (err) {
     console.error('[KitchenOS][fetchInventory]', err);
     await createPipelineLog({
@@ -186,7 +224,20 @@ export async function fetchStaffTasks(): Promise<StaffTask[]> {
 
     if (error) throw error;
 
-    return data as StaffTask[];
+    // Transform snake_case to camelCase
+    const transformedData = data.map((row: any) => ({
+      id: row.id,
+      taskType: row.task_type,
+      description: row.description,
+      assignedTo: row.assigned_to,
+      status: row.status,
+      priority: row.priority,
+      createdAt: row.created_at,
+      completedAt: row.completed_at,
+    }));
+
+    console.log('[KitchenOS][fetchStaffTasks] Fetched staff tasks:', transformedData.length);
+    return transformedData as StaffTask[];
   } catch (err) {
     console.error('[KitchenOS][fetchStaffTasks]', err);
     await createPipelineLog({
@@ -254,6 +305,8 @@ export async function fetchPipelineLogs(limit: number = 100): Promise<PipelineLo
 
     if (error) throw error;
 
+    // Data is already in correct format (id, timestamp, level, message)
+    console.log('[KitchenOS][fetchPipelineLogs] Fetched pipeline logs:', data.length);
     return data as PipelineLog[];
   } catch (err) {
     console.error('[KitchenOS][fetchPipelineLogs]', err);
